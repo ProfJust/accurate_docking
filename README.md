@@ -16,12 +16,16 @@ Component based on Robotnik [RComponet](https://github.com/RobotnikAutomation/rc
    Robotnik's docker action server used
 * **~move_action_server (string, default: move)**
    Robotnik's move action server used
+* **~move_base_action_server (string, default: move_base)**
+   Namespace used to connect with move_base   
 * **~pregoal_frame (string, default: laser_test_pregoal_footprint)**
    Target frame to perform a pregoal approach. This frame can be the same one than goal frame
 * **~goal_frame (string, default: laser_test_goal_footprint)**
    Target frame
 * **~base_frame (string, default: robot_base_footprint)**
    Robot's base frame
+* **~global_frame (string, default: robot_map)**
+   Robot's global frame used for move_base actions
 * **~pregoal_offset_1([], default: [-0.5, 0, 0])**
    Offset (x, y, theta) applied to the first dock action 
 * **~pregoal_offset_1([], default: [-0.5, 0, 0])**
@@ -30,8 +34,11 @@ Component based on Robotnik [RComponet](https://github.com/RobotnikAutomation/rc
    Distance to move back the robot after reaching the target goal and measuring the error.
 * **~consecutive_iterations(int, default: 1])**
    Number of consecutive iterations performed
-   
-   
+* **~init_pose([], default: [0, 0, 0])**
+   Init pose for every iteration (x, y, theta). It uses move_base to performe the movement. In case the init pose is set to [], move_base will not be used, and the param *step_back_distance* will be used as default.
+* **~only_docker (bool, default: false)**
+   Flag to used only the docker approach with no move actions in the end of the procedure. Normally the accuray is worse (orientation), though it is performed faster.
+
 ### 1.2 Subscribed Topics
 
 None
@@ -63,11 +70,16 @@ None
   Action that performs a dock into any frame
 *  **move_action_server(robotnik_navigation_msgs/MoveAction)**
   Action that performs a relative movement in either x, y or theta.
+  *  **move_base_action_server(move_base_msgs/MoveBaseAction)**
+  Action that performs an autonomous movement via move_base
 
 ### 1.8 Required tf Transforms
 
 * base_frame → goal_frame
   Transform between base and goal
+  
+  * global_frame → base_frame
+  Transform between global and local in case of using move_base
 
 ### 1.9 Provided tf Transforms
 
