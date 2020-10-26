@@ -150,6 +150,8 @@ class AccurateDocking(RComponent):
               return
 
           if self.step == 0:
+            self.step = 1
+            '''
             self.ongoing_result = {}
             rospy.loginfo('%s::ros_setup: waiting for server %s', rospy.get_name(), self.move_action_name)
             self.move_action_client.wait_for_server()
@@ -179,9 +181,10 @@ class AccurateDocking(RComponent):
               rospy.logerr("%s::ready_state: Docking failed", rospy.get_name())
               self.docking_status = "error"
               self.error_on_action()
-
+              '''
           elif self.step == 1:
-
+            self.step = 2
+            '''
             # Docking
             dock_goal = DockGoal()
             dock_goal.dock_frame = self.pregoal_link
@@ -200,30 +203,27 @@ class AccurateDocking(RComponent):
             else:
               rospy.logerr("%s::ready_state: Docking failed", rospy.get_name())
               self.error_on_action()
+            '''
 
           elif self.step == 2:
-              # Orientate robot
+              # Orientate robot straight to the marker
               move_goal = MoveGoal()
               move_goal.goal.theta = orientation
-              if abs(math.degrees(orientation)) > 0.2:
-                rospy.loginfo('%s::ready_state: %d - rotating %.3lf degrees to %s', rospy.get_name(), self.step, math.degrees(orientation), self.goal_link)
-                self.move_action_client.send_goal(move_goal)
-                self.move_action_client.wait_for_result()
-                result = self.move_action_client.get_result()
-                rospy.loginfo('%s::ready_state: %d - result = %s', rospy.get_name(), self.step, str(result.success))
+              rospy.loginfo('%s::ready_state: %d - rotating %.3lf degrees to %s', rospy.get_name(), self.step, math.degrees(orientation), self.goal_link)
+              self.move_action_client.send_goal(move_goal)
+              self.move_action_client.wait_for_result()
+              result = self.move_action_client.get_result()
+              rospy.loginfo('%s::ready_state: %d - result = %s', rospy.get_name(), self.step, str(result.success))
 
-                if result.success == True:
-                  self.step = 3
-                else:
-                  rospy.logerr("%s::ready_state: Move-Rotation failed", rospy.get_name())
-                  self.error_on_action()
-                  self.docking_status = "error"
-              else:
-                rospy.loginfo('%s::ready_state: %d - avoids rotating %.3lf degrees to %s', rospy.get_name(), self.step, math.degrees(orientation), self.goal_link)
+              if result.success == True:
                 self.step = 3
+              else:
+                rospy.logerr("%s::ready_state: Move-Rotation failed", rospy.get_name())
+                self.error_on_action()
+                self.docking_status = "error"
 
           elif self.step == 3:
-            # Move forward
+            # Move forward TODO set the "step_back_distance" parameter
             move_goal = MoveGoal()
             move_goal.goal.x = position[0]
             rospy.loginfo('%s::ready_state: %d - moving forward %.3lf meters to %s', rospy.get_name(), self.step, move_goal.goal.x, self.goal_link)
