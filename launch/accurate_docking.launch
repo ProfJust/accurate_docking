@@ -14,22 +14,20 @@
   <arg name="consecutive_iterations" default="5"/>
   
   <group ns="$(arg id_robot)">
-    <group ns="accurate_docking">
 
-      <node name="accurate_docking" pkg="accurate_docking" type="accurate_docking_node.py" output="screen">
-        <param name="docker_action_server" value="$(arg docker_action_server)"/>
-        <param name="move_action_server" value="$(arg move_action_server)"/>
-        <param name="base_frame" value="$(arg base_frame)"/>
-        <param name="pregoal_frame" value="$(arg pregoal_frame)"/>
-        <param name="goal_frame" value="$(arg goal_frame)"/>
-        <param name="reflectors_frame" value="$(arg reflectors_frame)"/>
-        <param name="pregoal_offset_1" value="$(arg pregoal_offset_1)"/>
-        <param name="pregoal_offset_2" value="$(arg pregoal_offset_2)"/>
-        <param name="step_back_distance" value="$(arg step_back_distance)"/>
-        <param name="consecutive_iterations" value="$(arg consecutive_iterations)"/>
-      </node>
+    <node name="accurate_docking" pkg="accurate_docking" type="accurate_docking_node.py" output="screen">
+      <param name="docker_action_server" value="$(arg docker_action_server)"/>
+      <param name="move_action_server" value="$(arg move_action_server)"/>
+      <param name="base_frame" value="$(arg base_frame)"/>
+      <param name="pregoal_frame" value="$(arg pregoal_frame)"/>
+      <param name="goal_frame" value="$(arg goal_frame)"/>
+      <param name="reflectors_frame" value="$(arg reflectors_frame)"/>
+      <param name="pregoal_offset_1" value="$(arg pregoal_offset_1)"/>
+      <param name="pregoal_offset_2" value="$(arg pregoal_offset_2)"/>
+      <param name="step_back_distance" value="$(arg step_back_distance)"/>
+      <param name="consecutive_iterations" value="$(arg consecutive_iterations)"/>
+    </node>
 
-    </group>
   </group>
 
 
