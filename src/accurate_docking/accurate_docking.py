@@ -159,8 +159,10 @@ class AccurateDocking(RComponent):
             self.dock_action_client.wait_for_server()
 
             rospy.loginfo('%s::ready_state: Initial distance to goal-> x: %.3lf mm, y: %.3lf mm, %.3lf degrees', rospy.get_name(), position[0]*1000, position[1]*1000, math.degrees(orientation))
+            '''
             self.initial_time = time.time()
             self.ongoing_result['initial'] = [position[0], position[1], math.degrees(orientation)]
+            '''
             # Docking
             dock_goal = DockGoal()
             dock_goal.dock_frame = self.pregoal_link
@@ -225,7 +227,10 @@ class AccurateDocking(RComponent):
           elif self.step == 3:
             # Move forward TODO set the "step_back_distance" parameter
             move_goal = MoveGoal()
-            move_goal.goal.x = position[0]
+            move_goal.goal.x = self.step_back_distance#position[0]
+            move_goal.maximum_velocity.linear.x = 0.7
+            self.init_pos = position[0]
+            self.init_ori = orientation
             rospy.loginfo('%s::ready_state: %d - moving forward %.3lf meters to %s', rospy.get_name(), self.step, move_goal.goal.x, self.goal_link)
             self.move_action_client.send_goal(move_goal)
             self.move_action_client.wait_for_result()
@@ -241,8 +246,22 @@ class AccurateDocking(RComponent):
               self.docking_status = "error"
 
           elif self.step == 4:
-            rospy.loginfo('%s::ready_state: final distance to goal -> x: %.3lf mm, y: %.3lf mm, %.3lf degrees', rospy.get_name(), position[0]*1000, position[1]*1000, math.degrees(orientation))
-            rospy.loginfo('%s::ready_state: final distance to reflectors -> x: %.3lf mm, y: %.3lf mm, %.3lf degrees', rospy.get_name(), position_to_reflectors[0]*1000, position_to_reflectors[1]*1000, math.degrees(orientation_to_reflectors))
+
+            # TODO check
+            self.end_pos = position[0]
+            self.end_ori = orientation # should be 0
+
+            self.diff_pos = abs(self.end_pos - self.init_pos) # should be = self.step_back_distance
+            self.diff_ori = abs(self.end_ori - self.init_ori) # should be 0
+
+            self.error_pos = self.diff_pos - self.step_back_distance # should be 0, if <0, not enough distance
+            self.error_ori = self.diff_ori # should be 0
+            # TODO save
+            rospy.loginfo('%s::ready_state: %d - errorX = %s', rospy.get_name(), self.step, str(self.error_pos))
+            rospy.loginfo('%s::ready_state: %d - errorOri = %s', rospy.get_name(), self.step, str(self.error_ori))
+
+            #rospy.loginfo('%s::ready_state: final distance to goal -> x: %.3lf mm, y: %.3lf mm, %.3lf degrees', rospy.get_name(), position[0]*1000, position[1]*1000, math.degrees(orientation))
+            #rospy.loginfo('%s::ready_state: final distance to reflectors -> x: %.3lf mm, y: %.3lf mm, %.3lf degrees', rospy.get_name(), position_to_reflectors[0]*1000, position_to_reflectors[1]*1000, math.degrees(orientation_to_reflectors))
             self.final_time = time.time()
             self.ongoing_result['final'] = [position[0], position[1], math.degrees(orientation)]
             self.ongoing_result['time'] = self.final_time - self.initial_time
@@ -256,6 +275,7 @@ class AccurateDocking(RComponent):
             # Move backward
             move_goal = MoveGoal()
             move_goal.goal.x = -self.step_back_distance
+            move_goal.maximum_velocity.linear.x = 0.7
             rospy.loginfo('%s::ready_state: %d - moving backwards %.3lf meters', rospy.get_name(), self.step, move_goal.goal.x)
             self.move_action_client.send_goal(move_goal)
             self.move_action_client.wait_for_result()

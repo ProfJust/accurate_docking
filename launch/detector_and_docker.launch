@@ -4,7 +4,7 @@
 
 	<arg name="id_robot" default="robot"/>
 	<arg name="prefix" value="$(arg id_robot)_"/>
-	<arg name="distance_between_reflectors" default="0.41" />
+	<arg name="distance_between_reflectors" default="0.35" />
 	<arg name="filter_config_file" default="$(optenv ROBOT_LASER_MODEL_INTENSITY_FILTER default)_intensity_filter"/>
 
 	<arg name="fixed_frame" default="$(arg prefix)odom"/>
