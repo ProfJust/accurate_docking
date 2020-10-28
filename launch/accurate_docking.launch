@@ -2,8 +2,8 @@
 <launch>
 
   <arg name="id_robot" default="robot"/>
-  <arg name="docker_action_server" default="pp_docker"/>
-  <arg name="move_action_server" default="move"/>
+  <arg name="docker_action_server" default="accurate_docking/pp_docker"/>
+  <arg name="move_action_server" default="accurate_docking/move"/>
   <arg name="base_frame" default="$(arg id_robot)_base_link"/>
   <arg name="pregoal_frame" default="$(arg id_robot)_accurate_test_goal"/>
   <arg name="goal_frame" default="$(arg id_robot)_accurate_test_goal"/>

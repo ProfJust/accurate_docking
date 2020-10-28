@@ -115,7 +115,7 @@
 
           <param name="fixed_frame" type="string" value="$(arg fixed_frame)" />
 
-          <param name="gain_linear_velocity_x" value="1.5" />
+          <param name="gain_linear_velocity_x" value="1.0" />
           <param name="gain_angular_velocity_z" value="2.0" />
 
           <param name="maximum_linear_velocity_x" value="1.0" />
