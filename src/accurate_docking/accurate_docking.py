@@ -184,7 +184,6 @@ class AccurateDocking(RComponent):
             # Move forward
             move_goal = MoveGoal()
             move_goal.goal.x = self.step_back_distance
-            move_goal.maximum_velocity.linear.x = 0.7
             rospy.loginfo('%s::ready_state: %d - moving forward %.3lf meters', rospy.get_name(), self.step, move_goal.goal.x)
             self.move_action_client.send_goal(move_goal)
             self.move_action_client.wait_for_result()
@@ -219,7 +218,7 @@ class AccurateDocking(RComponent):
             # Move backward
             move_goal = MoveGoal()
             move_goal.goal.x = -self.step_back_distance
-            move_goal.maximum_velocity.linear.x = 0.7
+            move_goal.maximum_velocity.linear.x = 1.0
             rospy.loginfo('%s::ready_state: %d - moving backwards %.3lf meters', rospy.get_name(), self.step, move_goal.goal.x)
             self.move_action_client.send_goal(move_goal)
             self.move_action_client.wait_for_result()
