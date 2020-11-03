@@ -161,7 +161,7 @@ class AccurateDocking(RComponent):
             self.move_action_client.send_goal(move_goal)
             self.move_action_client.wait_for_result()
             result = self.move_action_client.get_result()
-            rospy.loginfo('%s::ready_state: %d - result = %s', rospy.get_name(), self.step, str(result.success))
+            #rospy.loginfo('%s::ready_state: %d - result = %s', rospy.get_name(), self.step, str(result.success))
 
             if result.success == True:
               self.step = 2
@@ -176,7 +176,7 @@ class AccurateDocking(RComponent):
             # Init position and time variables
             self.initial_time = time.time()
             rospy.sleep(1)
-            self.ongoing_result['initial'] = [position[0], math.degrees(orientation)]
+            self.ongoing_result['initial'] = [position[0], position[1], math.degrees(orientation)]
             self.step = 3
               
 
@@ -188,11 +188,11 @@ class AccurateDocking(RComponent):
             self.move_action_client.send_goal(move_goal)
             self.move_action_client.wait_for_result()
             result = self.move_action_client.get_result()
-            rospy.loginfo('%s::ready_state: %d - result = %s', rospy.get_name(), self.step, str(result.success))
+            #rospy.loginfo('%s::ready_state: %d - result = %s', rospy.get_name(), self.step, str(result.success))
 
             if result.success == True:
-              self.final_time = time.time()
-              rospy.sleep(2)
+              #self.final_time = time.time()
+              #rospy.sleep(2)
               self.step = 4
             else:
               rospy.logerr("%s::ready_state: Move-Forward failed", rospy.get_name())
@@ -200,14 +200,40 @@ class AccurateDocking(RComponent):
               self.docking_status = "error"
 
           elif self.step == 4:
-            self.ongoing_result['final'] = [position[0], math.degrees(orientation)]
+            # Get error
+            self.ongoing_result['final'] = [position[0], position[1], math.degrees(orientation)]
             self.ongoing_result['error'] = [abs(self.ongoing_result['final'][0] - self.ongoing_result['initial'][0]) - self.step_back_distance,
-                                            self.ongoing_result['final'][1] - self.ongoing_result['initial'][1]]
+                                            self.ongoing_result['final'][1] - self.ongoing_result['initial'][1],
+                                            self.ongoing_result['final'][2] - self.ongoing_result['initial'][2]]
+            
+            # Move forward
+            move_goal = MoveGoal()
+            move_goal.goal.x = self.ongoing_result['error'][0]
+            rospy.loginfo('%s::ready_state: %d - moving forward %.3lf meters', rospy.get_name(), self.step, move_goal.goal.x)
+            self.move_action_client.send_goal(move_goal)
+            self.move_action_client.wait_for_result()
+            result = self.move_action_client.get_result()
+            #rospy.loginfo('%s::ready_state: %d - result = %s', rospy.get_name(), self.step, str(result.success))
+
+            if result.success == True:
+              self.final_time = time.time()
+              rospy.sleep(1)
+            else:
+              rospy.logerr("%s::ready_state: Move-Forward failed", rospy.get_name())
+              self.error_on_action()
+              self.docking_status = "error"
+
+            # Save new error
+            self.ongoing_result['final'] = [position[0], position[1], math.degrees(orientation)]
+            self.ongoing_result['error'] = [abs(self.ongoing_result['final'][0] - self.ongoing_result['initial'][0]) - self.step_back_distance,
+                                            self.ongoing_result['final'][1] - self.ongoing_result['initial'][1],
+                                            self.ongoing_result['final'][2] - self.ongoing_result['initial'][2]]
             self.ongoing_result['time'] = self.final_time - self.initial_time
             self.results.append(self.ongoing_result)
 
             rospy.loginfo('%s::ready_state: %d - errorX = %s', rospy.get_name(), self.step, str(self.ongoing_result['error'][0]))
-            rospy.loginfo('%s::ready_state: %d - errorTheta = %s', rospy.get_name(), self.step, str(self.ongoing_result['error'][1]))
+            rospy.loginfo('%s::ready_state: %d - errorY = %s', rospy.get_name(), self.step, str(self.ongoing_result['error'][1]))
+            rospy.loginfo('%s::ready_state: %d - errorTheta = %s', rospy.get_name(), self.step, str(self.ongoing_result['error'][2]))
 
             if self.step_back_distance == 0.0:
               self.iteration_success()
@@ -303,9 +329,9 @@ class AccurateDocking(RComponent):
       folder = os.path.join(rp.get_path('accurate_docking'), 'data')
       file_path = folder+'/'+filename
       with open(file_path, 'w') as f:
-        f.write("#distance,errorX,errorTheta,time\n")
+        f.write("distance(m),errorX(m),errorY(m),errorTheta(deg),time(sec)\n")
         for result in self.results:
-            f.write("%f,%f,%f,%f\n"%(self.step_back_distance, result['error'][0],result['error'][1], result['time'] ))
+            f.write("%f,%f,%f,%f,%f\n"%(self.step_back_distance, result['error'][0],result['error'][1],result['error'][2], result['time'] ))
 
       print(self.results)
       return []
