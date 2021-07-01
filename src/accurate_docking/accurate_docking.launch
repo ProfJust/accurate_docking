@@ -1,0 +1,50 @@
+<?xml version="1.0"?>
+<launch>
+
+  <arg name="id_robot" default="robot"/>
+  <arg name="docker_action_server" default="pp_docker"/>
+  <arg name="move_action_server" default="move"/>
+  <arg name="move_base_action_server" default="/robot/move_base"/>
+  <arg name="base_frame" default="$(arg id_robot)_base_link"/>
+  <arg name="pregoal_frame" default="$(arg id_robot)_accurate_test_goal"/>
+  <arg name="goal_frame" default="$(arg id_robot)_accurate_test_goal"/>
+  <arg name="reflectors_frame" default="$(arg id_robot)_filtered_point_between_reflectors"/>
+  <arg name="pregoal_offset_1" default="[-0.05, -0.01, 0.0]"/>
+  <arg name="pregoal_offset_2" default="[-0.05, -0.01, 0.0]"/>
+  <!--arg name="init_pose" default="[3.36255, -3.6715, 0.380635]"/-->
+  <!--arg name="init_pose" default="[3.236, -3.689, 0.243574]"/-->
+  <!--arg name="init_pose" default="[3.4912, -3.7187, 0.2796]"/-->
+  <!--arg name="init_pose" default="[2.861, -3.9380, 0.2189]"/-->
+  <arg name="init_pose" default="[]"/>
+  <arg name="step_back_distance" default="0.90"/>
+  <arg name="consecutive_iterations" default="125"/>
+  <arg name="idle_time_between_transitions" default="0.25"/>
+  <arg name="global_frame" default="robot_map"/>
+  <arg name="only_docker" default="false"/>
+
+  <group ns="$(arg id_robot)">
+    <group ns="accurate_docking">
+
+      <node name="accurate_docking" pkg="accurate_docking" type="accurate_docking_node.py" output="screen">
+        <param name="docker_action_server" value="$(arg docker_action_server)"/>
+        <param name="move_action_server" value="$(arg move_action_server)"/>
+        <param name="move_base_action_server" value="$(arg move_base_action_server)"/>
+        <param name="base_frame" value="$(arg base_frame)"/>
+        <param name="pregoal_frame" value="$(arg pregoal_frame)"/>
+        <param name="goal_frame" value="$(arg goal_frame)"/>
+        <param name="reflectors_frame" value="$(arg reflectors_frame)"/>
+        <param name="pregoal_offset_1" value="$(arg pregoal_offset_1)"/>
+        <param name="pregoal_offset_2" value="$(arg pregoal_offset_2)"/>
+        <param name="init_pose" value="$(arg init_pose)"/>
+        <param name="step_back_distance" value="$(arg step_back_distance)"/>
+        <param name="consecutive_iterations" value="$(arg consecutive_iterations)"/>
+        <param name="global_frame" value="$(arg global_frame)"/>
+        <param name="idle_time_between_transitions" value="$(arg idle_time_between_transitions)"/>
+        <param name="only_docker" value="$(arg only_docker)"/>
+      </node>
+
+    </group>
+  </group>
+
+
+</launch>
